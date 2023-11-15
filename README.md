@@ -60,7 +60,60 @@ Binary installers for the latest released version are available at the [Python P
 
    class TestCommandHandler(CommandHandler[TestCommand]):
        def handle(self, message: TestCommand) -> ReturnType:
-           return message.as_dict()
+           ... # do something
+   ```
+
+3. Register handlers:
+
+   Register handlers to `MessageBus` by using `register_handler` method.
+
+   ```python
+   from dataclasses import dataclass
+   from knot import Command, CommandHandler, register_handlers, MessageBus
+
+   ReturnType = dict[str, int]
+
+
+   @dataclass(slots=True)
+   class TestCommand(Command[ReturnType]):
+       a: int
+       b: int
+
+
+   class TestCommandHandler(CommandHandler[TestCommand]):
+       def handle(self, message: TestCommand) -> ReturnType:
+           ... # do something
+
+
+   messages = register_handlers((TestCommandHandler,))
+   message_bus = MessageBus(messages=messages)
+   ```
+
+4. Dispatch Messages:
+
+   Utilize `MessageBus` to dispatch messages within your application
+
+   ```python
+   from dataclasses import dataclass
+   from knot import Command, CommandHandler, register_handlers, MessageBus
+
+   ReturnType = dict[str, int]
+
+
+   @dataclass(slots=True)
+   class TestCommand(Command[ReturnType]):
+      a: int
+      b: int
+
+
+   class TestCommandHandler(CommandHandler[TestCommand]):
+      def handle(self, message: TestCommand) -> ReturnType:
+          ... # do something
+
+
+   messages = register_handlers((TestCommandHandler,))
+   message_bus = MessageBus(messages=messages)
+   message_bus.dispatch(TestCommand(a=1, b=2))
    ```
 
 ### 2. Integration with Dependency Injection
