@@ -16,7 +16,7 @@ def dispatch_queue_task(
     self,
     message_class: str,
     message_dto: dict,
-    message_bus: MessageBus = Provide["message_bus.bus"],
+    message_bus: MessageBus = Provide["message_bus"],
 ) -> None:
     message_cls = import_module_by_path(message_class)
     if not issubclass(message_cls, Message):
