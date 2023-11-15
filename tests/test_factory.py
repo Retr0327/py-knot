@@ -2,7 +2,7 @@ from dependency_injector.providers import Factory
 import pytest
 
 from knot import register_handlers
-from knot.plugins.di import create_messages_provider
+from knot.plugins.di import handlers_to_factories
 
 from .mocks import (
     MockCommand,
@@ -27,7 +27,7 @@ def test_handler_registration(mock_handler_factory):
 
 
 def test_provider_factory(mock_handler_factory):
-    provider_factory = create_messages_provider(mock_handler_factory)
+    provider_factory = handlers_to_factories(mock_handler_factory)
     assert all(
         isinstance(provider_factory[message_type], Factory)
         for message_type in (MockQuery, MockCommand)
