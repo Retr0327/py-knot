@@ -6,14 +6,10 @@ from typing import (
     get_origin,
 )
 
-from dependency_injector import providers
-
 from .types import MessageHandler
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-
-    from dependency_injector.providers import Factory
 
     from .types import (
         Handler,
@@ -44,20 +40,4 @@ def register_handlers(
             message_type = get_args(origin_base)[0]
             factory[message_type] = handler
 
-    return factory
-
-
-def create_provider_factory(
-    factory: dict[Message, MessageHandler]
-) -> dict[Message, Factory[MessageHandler]]:
-    """The create_provider_factory function converts dict values to factory providers.
-
-    Args:
-        factory (dict[Message, MessageHandler]): the factory to convert.
-    Returns:
-        a dict
-    """
-
-    for key, value in factory.items():
-        factory[key] = providers.Factory(value)
     return factory

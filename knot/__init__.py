@@ -1,8 +1,5 @@
 from .bus import MessageBus
-from .factory import (
-    create_provider_factory,
-    register_handlers,
-)
+from .factory import register_handlers
 from .types import (
     Command,
     CommandHandler,
@@ -12,7 +9,6 @@ from .types import (
 
 __all__ = [
     "MessageBus",
-    "create_provider_factory",
     "register_handlers",
     "Command",
     "CommandHandler",
