@@ -7,7 +7,7 @@ This repository offers a message bus system tailored for integration with [pytho
 
 The source code is currently hosted on GitHub at: https://github.com/Retr0327/py-knot
 
-Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/py-knot/).
+Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/pyknot/).
 
 - pip
 
