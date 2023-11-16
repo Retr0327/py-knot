@@ -182,20 +182,102 @@ Binary installers for the latest released version are available at the [Python P
 
    from dependency_injector.wiring import inject, Provide
 
-    @inject
-    def test(
-        message_bus: MessageBus = Provide[MessageBusContainer.message_bus],
-    ):
-        return message_bus.dispatch(TestCommand(a=1, b=2))
+   @inject
+   def test(
+       message_bus: MessageBus = Provide["message_bus"],
+   ):
+       return message_bus.dispatch(TestCommand(a=1, b=2))
 
-    if __name__ == "__main__":
-        container = MessageBusContainer()
-        container.wire(modules=[__name__])
-        result = test()
-        print(result)   # {'a': 1, 'b': 2}
+   if __name__ == "__main__":
+       container = MessageBusContainer()
+       container.wire(modules=[__name__])
+       test()
    ```
 
 ### 3. Extension as a Celery Plugin
+
+> please ensure that your application is already configured to work with [Celery](https://docs.celeryq.dev/en/stable/getting-started/introduction.html)
+
+`py-knot` can be extended to work seamlessly with [Celery](https://docs.celeryq.dev/en/stable/getting-started/introduction.html), enabling the dispatching of messages to a task queue. This extension is particularly useful for applications that require asynchronous processing or distributed task execution.
+
+1. Extend `MessageBus` for Celery Integration
+
+   Change:
+
+   ```python
+   from knot import MessageBus
+   ```
+
+   to
+
+   ```python
+   from knot.plugins.celery import MessageBus
+   ```
+
+2. Wire `queue_dispatcher_module` to the DI Container
+
+   Wiring `queue_dispatcher_module` to the DI container makes the `dispatch_queue` method accessible as a dependency.
+
+   ```python
+   from dataclasses import dataclass
+
+   from dependency_injector import (
+       containers,
+       providers,
+   )
+   from dependency_injector.wiring import (
+       Provide,
+       inject,
+   )
+
+   from knot import (
+       Command,
+       CommandHandler,
+       register_handlers,
+   )
+   from knot.plugins.celery import (
+       MessageBus,
+       queue_dispatcher_module,
+   )
+   from knot.plugins.di import handlers_to_factories
+
+   ReturnType = dict[str, int]
+
+
+   @dataclass(slots=True)
+   class TestCommand(Command[ReturnType]):
+       a: int
+       b: int
+
+
+   class TestCommandHandler(CommandHandler[TestCommand]):
+       def handle(self, message: TestCommand) -> ReturnType:
+           return message.as_dict()
+
+
+   messages = register_handlers((TestCommandHandler,))
+
+
+   class MessageBusContainer(containers.DeclarativeContainer):
+       message_bus = providers.Singleton(
+           MessageBus,
+           messages=providers.Dict(handlers_to_factories(messages)),
+       )
+
+
+   @inject
+   def test(
+       message_bus: MessageBus = Provide["message_bus"],
+   ):
+       return message_bus.dispatch_queue(TestCommand(a="a", b="b"))
+
+
+   if __name__ == "__main__":
+       container = MessageBusContainer()
+       container.wire(modules=[__name__, queue_dispatcher_module])
+       test()
+
+   ```
 
 ## Contact Me
 
